@@ -1,0 +1,12 @@
+{
+  "namespace" : "model",
+  "type": "record",
+  "name": "CardSuite",
+   "fields": [
+     {
+       "name": "suit",
+       "type": "string",
+       "doc": "The suit of the card"
+     }
+   ]
+}

@@ -1,0 +1,4 @@
+1;Lukas;21;true;17.29
+2;Anna;21;true;5.65
+3;Manuel;21;true;3.99
+4;Max   ;17;false;18.9

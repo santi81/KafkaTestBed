@@ -1,0 +1,12 @@
+{
+  "namespace": "model", "type": "record", "name": "SimpleCard", "fields": [
+  {
+    "name": "suit",
+    "type": "string",
+    "doc" : "The suit of the card"
+  }, {
+    "name": "card",
+    "type": "string",
+    "doc" : "The card number"
+  } ]
+}
