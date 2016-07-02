@@ -9,7 +9,13 @@ import com.sap.kafka.schema.SchemaConverters._
 import org.apache.avro.Schema
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.consumer.{ConsumerRecord, ConsumerRecords, KafkaConsumer, ConsumerConfig}
+import org.apache.spark.{SparkContext, SparkConf}
 import org.apache.spark.sql.types.StructType
+import org.apache.spark.sql.catalyst.expressions.GenericRow
+import scala.collection.JavaConverters._
+
+
+import org.apache.spark.sql.{SQLContext, Row}
 
 object KafkaDataFrameAvroConsumer {
 
@@ -55,22 +61,32 @@ object KafkaDataFrameAvroConsumer {
             |""".stripMargin)
     }
 
-    println(sparkSchema)
-
+    val conf = new SparkConf().setAppName("Test Plans").setMaster("local[*]")
+    val sc = new SparkContext(conf)
+    val sqlContext = new SQLContext(sc)
     while(true) {
       val records: ConsumerRecords[String, GenericRecord] = consumer.poll(100)
       val recordIterator: java.util.Iterator[ConsumerRecord[String, GenericRecord]] = records.iterator()
+
+      var myRows = Seq[Row]()
       while(recordIterator.hasNext)
       {
         val currentRecord :ConsumerRecord[String,GenericRecord] = recordIterator.next()
-        println(s"""${currentRecord.offset()}, ${currentRecord.
-          key()}, ${currentRecord.value()}""")
-
+        var tempSeq = Seq[Any]()
+         schema.getFields.asScala.toList.foreach((x : Schema.Field) => {
+           val converter = SchemaConverters.createConverterToSQL(x.schema())
+           tempSeq = tempSeq :+ converter(currentRecord.value().get(x.pos))
+         })
+        val myRow = Row.fromSeq(tempSeq)
+        myRows = myRows :+ myRow
       }
+      if(myRows.nonEmpty) {
+        val rddRows = sc.parallelize(myRows)
+        val df = sqlContext.createDataFrame(rddRows, sparkSchema.get)
+        df.collect().foreach(println)
+      }
+
     }
   }
-
-
-
 
   }
