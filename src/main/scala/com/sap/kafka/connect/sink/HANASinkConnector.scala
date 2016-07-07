@@ -7,6 +7,7 @@ import org.apache.kafka.connect.connector.Task
 import org.apache.kafka.connect.sink.SinkConnector
 
 import scala.collection.JavaConverters.seqAsJavaListConverter
+import scala.collection.JavaConverters._
 
 class HANASinkConnector extends SinkConnector{
 
@@ -26,6 +27,7 @@ class HANASinkConnector extends SinkConnector{
    * @return a List of configuration properties per worker
    * */
   override def taskConfigs(maxTasks: Int): util.List[util.Map[String, String]] = {
+
     (1 to maxTasks).map(c => configProps.get).toList.asJava
   }
 
@@ -38,12 +40,13 @@ class HANASinkConnector extends SinkConnector{
     println("Printing the Configuration properties")
     configProps.foreach(println)
     configProps = Some(props)
+    ConnectUtils(props.asScala.toMap)
   }
 
   override def stop(): Unit = {}
   override def version(): String = getClass.getPackage.getImplementationVersion
 
-  override def config(): ConfigDef = connConfigDef.get
+  override def config(): ConfigDef = new ConfigDef
 
 
 

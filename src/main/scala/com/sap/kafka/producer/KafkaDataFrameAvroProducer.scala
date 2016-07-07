@@ -11,7 +11,8 @@ import org.apache.spark.{SparkConf, SparkContext}
 
 object KafkaDataFrameAvroProducer  {
 
-  val kafkaTopic = "kafka-avro-dataframe1"    // command separated list of topics
+  //val kafkaTopic = "kafka-avro-dataframe1"    // command separated list of topics
+  val kafkaTopic = "stream_connect"    // command separated list of topics
   val kafkaBrokers = "10.97.136.161:9092"   // comma separated list of broker:host
 
   def main(args: Array[String]): Unit = {
@@ -50,7 +51,7 @@ object KafkaDataFrameAvroProducer  {
     val build = SchemaBuilder.record(recordName).namespace(recordNamespace)
     val schema = SchemaConverters.convertStructToAvro(peopleDf.schema, build, recordNamespace)
 
-    val avroProducer = new KafkaProducer[String,GenericRecord](props)
+    val avroProducer = new KafkaProducer[GenericRecord,GenericRecord](props)
     peopleDf.collect().foreach(x =>
     {
       //Convert an RDD row into an avro Record
@@ -60,7 +61,7 @@ object KafkaDataFrameAvroProducer  {
       }
       println(avroRecord)
       // val bytes = recordInjection.apply(avroRecord)
-      val record:ProducerRecord[String,GenericRecord] = new ProducerRecord(kafkaTopic, avroRecord)
+      val record:ProducerRecord[GenericRecord,GenericRecord] = new ProducerRecord(kafkaTopic, avroRecord)
       avroProducer.send(record)
     })
 
