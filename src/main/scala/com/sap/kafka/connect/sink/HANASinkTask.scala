@@ -2,7 +2,7 @@ package com.sap.kafka.connect.sink
 
 import java.util
 
-import org.apache.avro.generic.GenericRecord
+import com.sap.kafka.client._
 import org.apache.kafka.clients.consumer.OffsetAndMetadata
 import org.apache.kafka.common.TopicPartition
 import org.apache.kafka.connect.sink.{SinkRecord, SinkTask}
@@ -14,10 +14,12 @@ class HANASinkTask extends SinkTask {
     /**
      * Parse the configurations and setup the writer
      * */
+
+    var propertyMap = Map[String,String]()
     override def start(props: util.Map[String, String]): Unit = {
 
       println("Start Method of the task called...with the folliwing properties")
-      val propertyMap = props.asScala.toMap
+      propertyMap = props.asScala.toMap
 
 
     }
@@ -29,6 +31,7 @@ class HANASinkTask extends SinkTask {
 
       println("The put method of the task called")
       records.asScala.toList.foreach(sinkRecord =>{
+
         val  genericRecord = sinkRecord.value().asInstanceOf[org.apache.kafka.connect.data.Struct]
         val recordSchema = sinkRecord.valueSchema()
         var tempSeq = Seq[Any]()
@@ -37,6 +40,19 @@ class HANASinkTask extends SinkTask {
         })
         println(tempSeq)
         })
+
+      // Connection to HANA
+      val hanaConfigObject = HANAConfiguration.prepareConfiguration(propertyMap)
+      val client = HANAJdbcClient(hanaConfigObject)
+      val tableExists = client.tableExists(Some("SYSTEM"),"TESTTABLE")
+      tableExists match {
+
+        case true => println("Table Exists")
+        case false => println("Table Doesnt exist")
+        case _ => println("Shit Happened")
+      }
+
+
     }
 
 
