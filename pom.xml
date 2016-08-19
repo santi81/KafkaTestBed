@@ -13,6 +13,11 @@
 
     <repositories>
         <repository>
+            <id>nexus</id>
+            <name>nexus</name>
+            <url>http://nexus.wdf.sap.corp:8081/nexus/content/groups/build.milestones/</url>
+        </repository>
+        <repository>
             <id>confluent</id>
             <url>http://packages.confluent.io/maven/</url>
             <snapshots>
