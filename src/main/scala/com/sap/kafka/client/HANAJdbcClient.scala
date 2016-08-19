@@ -1,13 +1,17 @@
 package com.sap.kafka.client
 
-import java.sql.{Connection, DriverManager, ResultSet}
+import java.sql.{SQLException, Connection, DriverManager, ResultSet}
+import java.util
 
 import com.sap.kafka.utils.WithCloseables
+import org.apache.kafka.connect.sink.SinkRecord
+import org.slf4j.{LoggerFactory, Logger}
 
 
 import scala.util.{Failure, Success, Try}
 
 case class HANAJdbcClient(hanaConfiguration: HANAConfiguration)  {
+  private val log: Logger = LoggerFactory.getLogger(classOf[HANAJdbcClient])
 
   protected val driver: String = "com.sap.db.jdbc.Driver"
 
@@ -253,5 +257,14 @@ case class HANAJdbcClient(hanaConfiguration: HANAConfiguration)  {
         batchSize)
     }
   }*/
+ @throws(classOf[SQLException])
+  private[sink] def write(records: util.Collection[SinkRecord]): Unit = {
+
+  }
+
+  private[sink] def close {
+
+    log.warn("Ignoring closing connection assuming autoClose")
+  }
 
 }
