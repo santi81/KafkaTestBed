@@ -17,12 +17,13 @@ class HANASinkTask extends SinkTask {
      * */
     private var config: HANAConfiguration = null
     private val log: Logger = LoggerFactory.getLogger(classOf[HANASinkTask])
-    private var hanaClient: HANAJdbcClient = null
+    private var writer:HANAWriter = null
+
 
     override def start(props: util.Map[String, String]): Unit = {
       log.info("Starting task")
       config = HANAConfiguration.prepareConfiguration(props.asScala.toMap)
-      hanaClient = HANAJdbcClient(config)
+      writer = new HANAWriter(config)
     }
 
     /**
@@ -34,13 +35,12 @@ class HANASinkTask extends SinkTask {
       }
       val recordsCount: Int = records.size
       log.trace("Received {} records.", recordsCount)
-      hanaClient.write(records) // handle Exception
+      writer.write(records) // handle Exception
     }
 
 
     override def stop(): Unit = {
       log.info("Stopping task")
-      hanaClient.close
     }
 
     override def flush(map: util.Map[TopicPartition, OffsetAndMetadata]) : Unit = {

@@ -1,13 +1,14 @@
 package com.sap.kafka.client
 
-import java.sql.{SQLException, Connection, DriverManager, ResultSet}
+import java.sql.{Connection, DriverManager, ResultSet, SQLException}
 import java.util
 
-import com.sap.kafka.utils.WithCloseables
+import com.sap.kafka.connect.sink.HANASinkRecordsCollector
+import com.sap.kafka.utils.{SchemaBuilder, WithCloseables}
 import org.apache.kafka.connect.sink.SinkRecord
-import org.slf4j.{LoggerFactory, Logger}
+import org.slf4j.{Logger, LoggerFactory}
 
-
+import scala.collection.JavaConversions._
 import scala.util.{Failure, Success, Try}
 
 case class HANAJdbcClient(hanaConfiguration: HANAConfiguration)  {
@@ -87,7 +88,7 @@ case class HANAJdbcClient(hanaConfiguration: HANAConfiguration)  {
    * @param namespace The table namespace
    * @return A sequence of [[metaAttr]] objects (JDBC representation of the schema)
    */
-  protected def getMetaData(tableName: String, namespace: Option[String]): Seq[metaAttr] = {
+   def getMetaData(tableName: String, namespace: Option[String]): Seq[metaAttr] = {
     val fullTableName = tableWithNamespace(namespace, tableName)
     WithCloseables(getConnection) { conn =>
       WithCloseables(conn.createStatement()) { stmt =>
@@ -103,23 +104,21 @@ case class HANAJdbcClient(hanaConfiguration: HANAConfiguration)  {
     }
   }
 
- /* /**
+  /**
    * Creates and loads a table in HANA.
    *
    * @param namespace (optional) The table namespace
    * @param tableName The name of the table.
    * @param tableSchema The schema of the table.
-   * @param data The data to be loaded into the table.
    * @param batchSize Batchsize for inserts
    * @param columnTable Create a columnStore table
    */
   def createTable(namespace: Option[String],
                   tableName: String,
-                  tableSchema: StructType,
-                  data: DataFrame,
+                  tableSchema: metaSchema,
                   batchSize: Int,
                   columnTable: Boolean = false): Unit = {
-     val testSchema = SchemaBuilder.sparkToHANASchema(tableSchema)
+    val testSchema = SchemaBuilder.avroToHANASchema(tableSchema)
     val fullTableName = tableWithNamespace(namespace, tableName)
     val VARCHAR_STAR_R = "(?i)varchar\\(\\*\\)".r
     // Varchar(*) is not supported by HANA
@@ -136,10 +135,9 @@ case class HANAJdbcClient(hanaConfiguration: HANAConfiguration)  {
       case _ =>
         stmt.close()
         connection.close()
-        if (data.count() > 0) loadData(hanaConfiguration, namespace, tableName, data, batchSize)
     }
 
-  }*/
+  }
 
   /**
    * Checks if the given table name corresponds to an existent
@@ -257,14 +255,5 @@ case class HANAJdbcClient(hanaConfiguration: HANAConfiguration)  {
         batchSize)
     }
   }*/
- @throws(classOf[SQLException])
-  private[sink] def write(records: util.Collection[SinkRecord]): Unit = {
-
-  }
-
-  private[sink] def close {
-
-    log.warn("Ignoring closing connection assuming autoClose")
-  }
 
 }

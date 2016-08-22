@@ -1,11 +1,13 @@
 package com.sap.kafka.client
 
-import org.apache.spark.Logging
-import org.apache.spark.sql.Row
-import org.apache.spark.sql.types._
-import com.sap.kafka.utils.WithCloseables
-import org.apache.spark.sql.JdbcTypeConverter
-trait AbstractHANAPartitionLoader extends Logging {
+
+import com.sap.kafka.utils.{JdbcTypeConverter, WithCloseables}
+import org.apache.kafka.connect.sink.SinkRecord
+import org.slf4j.{Logger, LoggerFactory}
+
+trait AbstractHANAPartitionLoader {
+
+  private val log: Logger = LoggerFactory.getLogger(classOf[AbstractHANAPartitionLoader])
 
   /**
    * Provides a [[HANAJdbcClient]] implementation used for the partitions loading.
@@ -23,13 +25,13 @@ trait AbstractHANAPartitionLoader extends Logging {
    * @param hanaConfiguration The HANA connection configuration
    * @param tableName The name of the table to load
    * @param iterator Iterator over the dataset to load
-   * @param rddSchema The RDD schema
+   * @param metaSchema The RDD schema
    * @param batchSize The batch size
    */
   private[client] def loadPartition(hanaConfiguration: HANAConfiguration,
                                   tableName: String,
-                                  iterator: Iterator[Row],
-                                  rddSchema: StructType,
+                                  iterator: Iterator[SinkRecord],
+                                  metaSchema: metaSchema,
                                   batchSize: Int): Unit = {
     var committed = false
     // Here we create a new connection because this piece of code is executed on the worker
@@ -37,19 +39,20 @@ trait AbstractHANAPartitionLoader extends Logging {
       conn.setAutoCommit(false)
 
       WithCloseables(conn
-        .prepareStatement(prepareInsertIntoStmt(tableName, rddSchema))) { stmt =>
-        val fieldsValuesConverters = JdbcTypeConverter.getSparkRowDatatypesSetters(rddSchema.fields,
+        .prepareStatement(prepareInsertIntoStmt(tableName, metaSchema))) { stmt =>
+        val fieldsValuesConverters = JdbcTypeConverter.getSinkRowDatatypesSetters(metaSchema.fields,
           stmt)
         for (batchRows <- iterator.grouped(batchSize)) {
           for (row <- batchRows) {
-            row.toSeq.zipWithIndex.foreach {
+            /*row.toSeq.zipWithIndex.foreach {
               case (null, i) =>
                 stmt.setNull(i + 1, JdbcTypeConverter
-                  .convertToHANAType(rddSchema.fields(i).dataType))
+                  .convertToHANAType(metaSchema.fields(i).dataType))
               case (value, i) =>
                 fieldsValuesConverters(i)(value)
             }
             stmt.addBatch()
+            */
           }
           stmt.executeBatch()
           stmt.clearParameters()
@@ -71,7 +74,7 @@ trait AbstractHANAPartitionLoader extends Logging {
         try {
           conn.close()
         } catch {
-          case e: Exception => logWarning("Transaction succeeded, but closing failed", e)
+          case e: Exception => log.warn("Transaction succeeded, but closing failed", e)
         }
       }
     }
@@ -82,11 +85,11 @@ trait AbstractHANAPartitionLoader extends Logging {
    * Prepares an INSERT INTO statement for the give parameters.
    *
    * @param fullTableName The fully-qualified name of the table
-   * @param rddSchema The RDD schema
+   * @param metaSchema The Metadata schema
    * @return The prepared INSERT INTO statement as a [[String]]
    */
-  private[client] def prepareInsertIntoStmt(fullTableName: String, rddSchema: StructType): String = {
-    val fields = rddSchema.fields
+  private[client] def prepareInsertIntoStmt(fullTableName: String, metaSchema: metaSchema): String = {
+    val fields = metaSchema.fields
     val columnNames = fields.map(field => s""""${field.name}"""").mkString(", ")
     val placeHolders = fields.map(field => s"""?""").mkString(", ")
     s"""INSERT INTO $fullTableName ($columnNames) VALUES ($placeHolders)"""

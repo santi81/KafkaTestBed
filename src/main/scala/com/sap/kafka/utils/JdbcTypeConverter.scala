@@ -1,16 +1,17 @@
-package org.apache.spark.sql
+package com.sap.kafka.utils
 
 import java.sql.{PreparedStatement, ResultSet}
 
-import org.apache.spark.sql.types._
 import com.sap.kafka.client.metaAttr
+import org.apache.kafka.connect.data.Schema
+import org.apache.kafka.connect.data.Schema.Type
 
 /**
- * Provides methods to convert a JDBC [[ResultSet]] to a Spark [[Row]] with the provided types.
+ * Provides methods to convert a JDBC [[ResultSet]] to a Avro [[Row]] with the provided types.
  *
  * @param expectedTypes Types expected in the [[ResultSet]]
  */
-class JdbcTypeConverter(val expectedTypes: Seq[DataType]) {
+class JdbcTypeConverter(val expectedTypes: Seq[metaAttr]) {
 
   /**
    * Given a [[ResultSet]] convert it to [[Row]]. The iterator must be iterated externally.
@@ -18,7 +19,7 @@ class JdbcTypeConverter(val expectedTypes: Seq[DataType]) {
    * @param rs The [[ResultSet]] object to convert
    * @return a [[Row]] object with the [[ResultSet]] content.
    */
-  def convert(rs: ResultSet): Row = JdbcTypeConverter.convertResultSetEntry(rs, expectedTypes)
+  // def convert(rs: ResultSet): Row = JdbcTypeConverter.convertResultSetEntry(rs, expectedTypes)
 
 }
 
@@ -27,12 +28,13 @@ object JdbcTypeConverter {
   private final val CONST_TYPE_SMALLDECIMAL = 3000
 
   /**
-   * Converts a HANA SQL attribute to the most compatible Spark [[DataType]].
+   * Converts a HANA SQL attribute to the most compatible AVRO [[DataType]].
    *
    * @param attr The attribute to convert
    * @return The converted [[DataType]]
    */
   // scalastyle:off cyclomatic.complexity
+  /*
   def convertToSparkType(attr: metaAttr): DataType = {
     attr.dataType match {
       // Datetime types
@@ -68,6 +70,7 @@ object JdbcTypeConverter {
       case other => sys.error(s"Unsupported JDBC type: $other")
     }
   }
+  */
   // scalastyle:on cyclomatic.complexity
 
   /**
@@ -76,6 +79,7 @@ object JdbcTypeConverter {
    * @param attributes The attributes to convert
    * @return The converted [[DataType]]s
    */
+  /*
   def getSchema(attributes: Seq[metaAttr]): StructType =
     StructType(attributes.map(a => StructField(a.name, convertToSparkType(a), a.isNullable == 1)))
 
@@ -86,7 +90,9 @@ object JdbcTypeConverter {
    * @param expectedTypes The expected Spark types
    * @return A [[Row]] object
    */
+   **/
   // scalastyle:off cyclomatic.complexity
+  /*
   def convertResultSetEntry(rs: ResultSet, expectedTypes: Seq[DataType]): Row =
     Row.fromSeq(expectedTypes.zipWithIndex.map({ case (t, i) =>
       // Columns in the JDBC [[ResultSet]] start from 1
@@ -120,29 +126,25 @@ object JdbcTypeConverter {
       if (rs.wasNull()) null else value
     }))
   // scalastyle:on cyclomatic.complexity
-
+*/
   /**
    * Converts a Spark datatype to the most compatible HANA SQL datatype.
    *
-   * @param sparkType The Spark type to convert
+   * @param schemaType The Spark type to convert
    * @return The converted HANA datatype as [[java.sql.Types]]
    */
   // scalastyle:off cyclomatic.complexity
-  def convertToHANAType(sparkType: DataType): Int = sparkType match {
-      case IntegerType => java.sql.Types.INTEGER
-      case LongType => java.sql.Types.BIGINT
-      case DoubleType => java.sql.Types.DOUBLE
-      case FloatType => java.sql.Types.REAL
-      case ShortType => java.sql.Types.INTEGER
-      case ByteType => java.sql.Types.INTEGER
-      case BooleanType => java.sql.Types.BIT
-      case StringType => java.sql.Types.CLOB
-      case BinaryType => java.sql.Types.BLOB
-      case TimestampType => java.sql.Types.TIMESTAMP
-      case DateType => java.sql.Types.DATE
-      case DecimalType.Unlimited => java.sql.Types.DECIMAL
-      case DecimalType.Fixed(p, s) => java.sql.Types.DECIMAL
-      case _ => sys.error(s"Unsupported Spark type: $sparkType")
+  def convertToHANAType(schemaType: Type): Int = schemaType match {
+      case Schema.Type.INT8 => java.sql.Types.INTEGER
+      case Schema.Type.INT16 => java.sql.Types.INTEGER
+      case Schema.Type.INT32 => java.sql.Types.INTEGER
+      case Schema.Type.INT64 => java.sql.Types.BIGINT
+      case Schema.Type.FLOAT64 => java.sql.Types.DOUBLE
+      case Schema.Type.FLOAT32 => java.sql.Types.REAL
+      case Schema.Type.BOOLEAN => java.sql.Types.BIT
+      case Schema.Type.STRING => java.sql.Types.VARCHAR
+      case Schema.Type.BYTES => java.sql.Types.BLOB
+      case _ => sys.error(s"Unsupported Avro type: $schemaType")
     }
   // scalastyle:on cyclomatic.complexity
 
@@ -156,29 +158,15 @@ object JdbcTypeConverter {
    *         of the type [[Any]]
    */
   // scalastyle:off cyclomatic.complexity
-  def getSparkRowDatatypesSetters(datatypes: Seq[StructField], stmt: PreparedStatement):
+  def getSinkRowDatatypesSetters(datatypes: Seq[metaAttr], stmt: PreparedStatement):
   Seq[(Any) => Unit] = datatypes.zipWithIndex.map({case (t, i) => t.dataType match {
-      case LongType => (value: Any) => stmt.setLong(i + 1, value.asInstanceOf[Long])
-      case FloatType => (value: Any) => stmt.setFloat(i + 1, value.asInstanceOf[Float])
-      case ShortType => (value: Any) => stmt.setInt(i + 1, value.asInstanceOf[Short])
-      case ByteType => (value: Any) => stmt.setInt(i + 1, value.asInstanceOf[Byte])
-      case IntegerType => (value: Any) => stmt.setInt(i + 1, value.asInstanceOf[Int])
-      case BooleanType => (value: Any) => stmt.setBoolean(i + 1, value.asInstanceOf[Boolean])
-      case DoubleType => (value: Any) => stmt.setDouble(i + 1, value.asInstanceOf[Double])
-      case StringType => (value: Any) => stmt.setString(i + 1, value.asInstanceOf[String])
-      case BinaryType => (value: Any) => stmt.setBytes(i + 1, value.asInstanceOf[Array[Byte]])
-      case TimestampType =>
-        (value: Any) => stmt.setTimestamp(i + 1, value.asInstanceOf[java.sql.Timestamp])
-      case DateType => (value: Any) => stmt.setDate(i + 1, value.asInstanceOf[java.sql.Date])
-      case DecimalType.Unlimited => (value: Any) => stmt.setBigDecimal(i + 1,
-          value.asInstanceOf[java.math.BigDecimal])
+      case java.sql.Types.INTEGER => (value: Any) => stmt.setInt(i + 1, value.asInstanceOf[Int])
+      case java.sql.Types.BIT => (value: Any) => stmt.setBoolean(i + 1, value.asInstanceOf[Boolean])
+      case java.sql.Types.DOUBLE => (value: Any) => stmt.setDouble(i + 1, value.asInstanceOf[Double])
+      case java.sql.Types.VARCHAR => (value: Any) => stmt.setString(i + 1, value.asInstanceOf[String])
       case other =>
-        if (other.isInstanceOf[DecimalType]) {
-          (value: Any) => stmt.setBigDecimal(i + 1, value.asInstanceOf[java.math.BigDecimal])
-        } else {
           (value: Any) =>
             sys.error(s"Unable to translate the non-null value for the field $i")
-        }
     }})
   // scalastyle:on cyclomatic.complexity
 
