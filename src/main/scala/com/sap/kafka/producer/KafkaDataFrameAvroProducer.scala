@@ -34,14 +34,14 @@ object KafkaDataFrameAvroProducer  {
       .textFile("src/main/resources/people.txt")
       .map(_.split(";"))
       .map(x => Row(
-      x(0).toInt, x(1), x(2).toInt, x(3).toBoolean,
+      x(0).toInt, x(1), x(2).toInt, // x(3).toBoolean,
       x(4).toDouble))
 
     val peopleSchema = StructType(Array(
       StructField("id", IntegerType, true),
       StructField("name", StringType, true),
       StructField("age", IntegerType, true),
-      StructField("member", BooleanType, true),
+//      StructField("member", BooleanType, true),
       StructField("weight", DoubleType, true)
     ))
     peopleRdd.collect().foreach(println) // todo fix this issue
