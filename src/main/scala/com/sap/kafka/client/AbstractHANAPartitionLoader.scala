@@ -44,6 +44,7 @@ trait AbstractHANAPartitionLoader {
           stmt)
         for (batchRows <- iterator.grouped(batchSize)) {
           for (row <- batchRows) {
+            
             /*row.toSeq.zipWithIndex.foreach {
               case (null, i) =>
                 stmt.setNull(i + 1, JdbcTypeConverter

@@ -231,29 +231,21 @@ case class HANAJdbcClient(hanaConfiguration: HANAConfiguration)  {
       }
     }
 
- /* /**
-   * Loads data to a table from a given [[DataFrame]].
-   * The [[HANAConfiguration]] must be explicitly passed to this method
-   * because it is executed on the workers and the configuration object
-   * is provided by the HANA relation.
+  /**
+   * Loads data to a table from a given Seq of SinkRecords.
    *
-   * @param hanaConfiguration The HANA connection configuration
    * @param namespace (optional) The table namespace
-   * @param tableName The table name to which the [[DataFrame]] is loaded
-   * @param data The [[DataFrame]] to load
+   * @param tableName The table name to which the SinkRecords are loaded
+   * @param records The SinkRecords to load
    * @param batchSize The batch size parameter
    */
-   def loadData(hanaConfiguration: HANAConfiguration,
-                             namespace: Option[String],
+   def loadData(namespace: Option[String],
                              tableName: String,
-                             data: DataFrame,
+                             schema: metaSchema,
+                             records: Seq[SinkRecord],
                              batchSize: Int): Unit = {
-    val schema = data.schema
     val fullTableName = tableWithNamespace(namespace, tableName)
-    data.foreachPartition { iterator =>
-      HANAPartitionLoader.loadPartition(hanaConfiguration, fullTableName, iterator, schema,
-        batchSize)
-    }
-  }*/
+      HANAPartitionLoader.loadPartition(hanaConfiguration, fullTableName, records.iterator , schema, batchSize)
+  }
 
 }

@@ -22,19 +22,22 @@ class HANAWriter(config: HANAConfiguration) {
   @throws(classOf[SQLException])
   private[sink] def write(records: util.Collection[SinkRecord]): Unit = {
     initConnection()
-    val bufferByTable = scala.collection.mutable.Map[String, HANASinkRecordsCollector]()
+    val cacheByTopic = scala.collection.mutable.Map[String, HANASinkRecordsCollector]()
 
     records.foreach(record => {
       val table: String = record.topic
-      val buffer: Option[HANASinkRecordsCollector] = bufferByTable.get(table)
-      buffer match {
+      val cache: Option[HANASinkRecordsCollector] = cacheByTopic.get(table)
+      cache match {
         case None =>
-          val bufferRecords = new HANASinkRecordsCollector(table, hanaClient)
-          bufferByTable.put(table, bufferRecords)
-          bufferRecords.add(record)
+          val cacheRecords = new HANASinkRecordsCollector(table, hanaClient)
+          cacheByTopic.put(table, cacheRecords)
+          cacheRecords.add(record)
         case Some(bufferRecords) =>
           bufferRecords.add(record)
       }
     })
+    for (cache <- cacheByTopic.values) {
+      cache.flush()
+    }
   }
 }

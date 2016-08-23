@@ -14,6 +14,7 @@ import scala.collection.JavaConversions._
 class HANASinkRecordsCollector(var tableName: String, client: HANAJdbcClient) {
   private val log: Logger = LoggerFactory.getLogger(classOf[HANASinkTask])
   private var records: Seq[SinkRecord] = Seq[SinkRecord]()
+  private var metaSchema: metaSchema = null
 
   private[sink] def add(record: SinkRecord): Unit = {
 
@@ -29,7 +30,7 @@ class HANASinkRecordsCollector(var tableName: String, client: HANAJdbcClient) {
         //Compare the Schemas
 
       case false =>
-        val metaSchema = new metaSchema(Seq[metaAttr](),Seq[Field]())
+        metaSchema = new metaSchema(Seq[metaAttr](),Seq[Field]())
         for (field <- recordSchema.valueSchema.fields) {
           val fieldSchema: Schema = field.schema
           val fieldAttr = metaAttr(fieldSchema.name(), JdbcTypeConverter.convertToHANAType(fieldSchema.`type`()),1,0,0,isSigned = false )
@@ -39,6 +40,10 @@ class HANASinkRecordsCollector(var tableName: String, client: HANAJdbcClient) {
         client.createTable(Some("SYSTEM"), tableName, metaSchema, 1000, columnTable = false)
     }
 
+  }
+
+  private[sink] def flush(): Unit = {
+       client.loadData(Some("SYSTEM"),tableName,metaSchema,records,1000)
   }
 
 }
