@@ -38,7 +38,6 @@ class HANAWriter(config: HANAConfiguration) {
     })
 
     for (cache <- cacheByTopic.values) {
-      println("Table exists flag" + cache.tableExistsFlag)
       if (cache.tableExistsFlag) {
         cache.flush()
       }

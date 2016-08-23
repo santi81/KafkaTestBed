@@ -49,7 +49,6 @@ trait AbstractHANAPartitionLoader {
 
             metaSchema.fields.zipWithIndex.foreach{
               case (field, i) =>
-                println(i + " - " + field.name + " - " + data.get(field.name))
                 fieldsValuesConverters(i)(data.get(field.name))
             }
             stmt.addBatch()
@@ -81,6 +80,7 @@ trait AbstractHANAPartitionLoader {
          * The stage cannot fail now as failure will re-trigger the inserts.
          * Do not propagate exceptions further.
          */
+        log.info("Record inserted")
         try {
           conn.close()
         } catch {
@@ -102,7 +102,6 @@ trait AbstractHANAPartitionLoader {
     val fields = metaSchema.fields
     val columnNames = fields.map(field => s""""${field.name}"""").mkString(", ")
     val placeHolders = fields.map(field => s"""?""").mkString(", ")
-    println(s"""INSERT INTO $fullTableName ($columnNames) VALUES ($placeHolders)""")
     s"""INSERT INTO $fullTableName ($columnNames) VALUES ($placeHolders)"""
   }
 

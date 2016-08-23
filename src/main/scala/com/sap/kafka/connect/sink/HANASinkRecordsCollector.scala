@@ -37,7 +37,6 @@ class HANASinkRecordsCollector(var tableName: String, client: HANAJdbcClient) {
         metaSchema = new metaSchema(Seq[metaAttr](),Seq[Field]())
         for (field <- recordSchema.valueSchema.fields) {
           val fieldSchema: Schema = field.schema
-          println(fieldSchema.name())
           val fieldAttr = metaAttr(fieldSchema.name(), JdbcTypeConverter.convertToHANAType(fieldSchema.`type`()),1,0,0,isSigned = false )
           metaSchema.fields = metaSchema.fields :+ fieldAttr
           metaSchema.avroFields = metaSchema.avroFields :+ field
