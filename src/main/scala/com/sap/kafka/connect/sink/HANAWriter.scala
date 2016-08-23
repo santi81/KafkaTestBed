@@ -36,8 +36,12 @@ class HANAWriter(config: HANAConfiguration) {
           bufferRecords.add(record)
       }
     })
+
     for (cache <- cacheByTopic.values) {
-      cache.flush()
+      println("Table exists flag" + cache.tableExistsFlag)
+      if (cache.tableExistsFlag) {
+        cache.flush()
+      }
     }
   }
 }

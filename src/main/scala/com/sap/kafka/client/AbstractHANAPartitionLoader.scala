@@ -2,6 +2,7 @@ package com.sap.kafka.client
 
 
 import com.sap.kafka.utils.{JdbcTypeConverter, WithCloseables}
+import org.apache.kafka.connect.data.Struct
 import org.apache.kafka.connect.sink.SinkRecord
 import org.slf4j.{Logger, LoggerFactory}
 
@@ -44,6 +45,14 @@ trait AbstractHANAPartitionLoader {
           stmt)
         for (batchRows <- iterator.grouped(batchSize)) {
           for (row <- batchRows) {
+            val data = row.value().asInstanceOf[Struct]
+
+            metaSchema.fields.zipWithIndex.foreach{
+              case (field, i) =>
+                println(i + " - " + field.name + " - " + data.get(field.name))
+                fieldsValuesConverters(i)(data.get(field.name))
+            }
+            stmt.addBatch()
             
             /*row.toSeq.zipWithIndex.foreach {
               case (null, i) =>
@@ -93,6 +102,7 @@ trait AbstractHANAPartitionLoader {
     val fields = metaSchema.fields
     val columnNames = fields.map(field => s""""${field.name}"""").mkString(", ")
     val placeHolders = fields.map(field => s"""?""").mkString(", ")
+    println(s"""INSERT INTO $fullTableName ($columnNames) VALUES ($placeHolders)""")
     s"""INSERT INTO $fullTableName ($columnNames) VALUES ($placeHolders)"""
   }
 

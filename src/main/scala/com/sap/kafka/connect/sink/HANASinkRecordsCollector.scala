@@ -15,6 +15,7 @@ class HANASinkRecordsCollector(var tableName: String, client: HANAJdbcClient) {
   private val log: Logger = LoggerFactory.getLogger(classOf[HANASinkTask])
   private var records: Seq[SinkRecord] = Seq[SinkRecord]()
   private var metaSchema: metaSchema = null
+  var tableExistsFlag = true
 
   private[sink] def add(record: SinkRecord): Unit = {
 
@@ -25,14 +26,18 @@ class HANASinkRecordsCollector(var tableName: String, client: HANAJdbcClient) {
     tableExists match
     {
       case true =>
+        tableExistsFlag = true
         val tableMetaData = client.getMetaData(tableName,None)
+        metaSchema = new metaSchema(tableMetaData, null)
         log.warn("Table already exists.Validate the schema")
         //Compare the Schemas
 
       case false =>
+        tableExistsFlag = false
         metaSchema = new metaSchema(Seq[metaAttr](),Seq[Field]())
         for (field <- recordSchema.valueSchema.fields) {
           val fieldSchema: Schema = field.schema
+          println(fieldSchema.name())
           val fieldAttr = metaAttr(fieldSchema.name(), JdbcTypeConverter.convertToHANAType(fieldSchema.`type`()),1,0,0,isSigned = false )
           metaSchema.fields = metaSchema.fields :+ fieldAttr
           metaSchema.avroFields = metaSchema.avroFields :+ field

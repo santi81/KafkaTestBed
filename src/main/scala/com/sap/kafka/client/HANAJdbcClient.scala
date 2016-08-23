@@ -245,6 +245,17 @@ case class HANAJdbcClient(hanaConfiguration: HANAConfiguration)  {
                              records: Seq[SinkRecord],
                              batchSize: Int): Unit = {
     val fullTableName = tableWithNamespace(namespace, tableName)
+      val iterator = records.iterator
+
+      while (iterator.hasNext) {
+        val record = iterator.next()
+
+        if (record.isInstanceOf[SinkRecord]) {
+          println(record.value() + " - yes")
+        }
+      }
+
+      schema.fields.foreach(metaAttr => println(metaAttr.name + " - " + metaAttr.dataType))
       HANAPartitionLoader.loadPartition(hanaConfiguration, fullTableName, records.iterator , schema, batchSize)
   }
 
