@@ -1,21 +1,22 @@
 package com.sap.kafka.consumer
 
-import java.util.{Arrays, Locale}
+import java.util.Locale
 
-import org.apache.kafka.clients.consumer.{ConsumerConfig, ConsumerRecord, ConsumerRecords, KafkaConsumer}
-import org.apache.kafka.common.serialization.{Serdes, StringDeserializer, StringSerializer}
-import org.apache.kafka.streams.StreamsConfig
-import org.apache.kafka.streams.kstream.{KStream, KStreamBuilder, ValueMapper}
+import org.apache.kafka.clients.consumer.ConsumerConfig
+import org.apache.kafka.common.serialization.Serdes
+import org.apache.kafka.streams.kstream.{KStream, KStreamBuilder, KeyValueMapper, ValueMapper}
+import org.apache.kafka.streams.{KafkaStreams, KeyValue, StreamsConfig}
+
 import scala.collection.JavaConverters._
 
-object KafkaStreams {
+object KafkaStreamsExample {
 
 
   val kafkaTopic = "kafka_streams_testing"    // command separated list of topics
   val kafkaBrokers = "10.97.136.161:9092"   // comma separated list of broker:host
 
   def main(args: Array[String]): Unit = {
-    val props = new java.util.HashMap[String, Object]()
+    val props = new java.util.Properties()
     props.put(StreamsConfig.APPLICATION_ID_CONFIG, "streams-wordcount-processor")
     props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBrokers)
     props.put(StreamsConfig.ZOOKEEPER_CONNECT_CONFIG, "10.97.136.161:2181")
@@ -32,7 +33,19 @@ object KafkaStreams {
         value.toLowerCase(Locale.getDefault).split(" ").toList.asJava
       }
     }
-    textLines.flatMapValues[String](valueMapper)
+    val keyValueMapper = new KeyValueMapper[String,String,KeyValue[String,Long]] {
+
+      override def apply(key:String, value: String):KeyValue[String,Long] = {
+        new KeyValue(value, 1)
+      }
+
+    }
+    val lines = textLines.flatMapValues[String](valueMapper).map[String,Long](keyValueMapper)
+    val kTable = lines.countByKey("Counts")
+    kTable.print()
+
+    val streams = new KafkaStreams(builder,props)
+    streams.start()
 
   }
 }

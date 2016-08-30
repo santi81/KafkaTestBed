@@ -5,7 +5,7 @@ import org.apache.kafka.clients.producer.{ProducerConfig, KafkaProducer, Produce
 
 object KafkaProducerDemo {
 
-  val kafkaTopic = "stream1"    // command separated list of topics
+  val kafkaTopic = "kafka_streams_testing"    // command separated list of topics
   val kafkaBrokers = "10.97.136.161:9092"   // comma separated list of broker:host
   //val kafkaBrokers = "172.16.204.11:6667,172.16.204.14:6667,172.16.204.15:6667,172.16.204.16:6667"   // comma separated list of broker:host
 

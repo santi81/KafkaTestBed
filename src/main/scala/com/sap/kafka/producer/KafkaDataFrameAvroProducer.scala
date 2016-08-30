@@ -12,7 +12,7 @@ import org.apache.spark.{SparkConf, SparkContext}
 object KafkaDataFrameAvroProducer  {
 
   // val kafkaTopic = "kafka-avro-dataframe1"    // command separated list of topics
-  val kafkaTopic = "STREAM_CONNECT"    // command separated list of topics
+  val kafkaTopic = "kafka_streams_testing"    // command separated list of topics
   val kafkaBrokers = "10.97.136.161:9092"   // comma separated list of broker:host
 
   def main(args: Array[String]): Unit = {
