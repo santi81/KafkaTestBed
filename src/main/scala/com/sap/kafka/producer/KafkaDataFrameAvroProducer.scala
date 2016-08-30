@@ -67,7 +67,6 @@ object KafkaDataFrameAvroProducer  {
 
     avroProducer.close()
 
-
   }
 
 }
