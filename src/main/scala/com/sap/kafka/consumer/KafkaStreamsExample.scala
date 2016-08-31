@@ -3,8 +3,8 @@ package com.sap.kafka.consumer
 import java.util.Locale
 
 import org.apache.kafka.clients.consumer.ConsumerConfig
-import org.apache.kafka.common.serialization.Serdes
-import org.apache.kafka.streams.kstream.{KStream, KStreamBuilder, KeyValueMapper, ValueMapper}
+import org.apache.kafka.common.serialization.{Serde, Serdes}
+import org.apache.kafka.streams.kstream._
 import org.apache.kafka.streams.{KafkaStreams, KeyValue, StreamsConfig}
 
 import scala.collection.JavaConverters._
@@ -12,7 +12,7 @@ import scala.collection.JavaConverters._
 object KafkaStreamsExample {
 
 
-  val kafkaTopic = "kafka_streams_testing"    // command separated list of topics
+  val kafkaTopic = "kafka_streams_testing4"    // command separated list of topics
   val kafkaBrokers = "10.97.136.161:9092"   // comma separated list of broker:host
 
   def main(args: Array[String]): Unit = {
@@ -33,16 +33,18 @@ object KafkaStreamsExample {
         value.toLowerCase(Locale.getDefault).split(" ").toList.asJava
       }
     }
-    val keyValueMapper = new KeyValueMapper[String,String,KeyValue[String,Long]] {
+    val keyValueMapper = new KeyValueMapper[String,String,KeyValue[String,Int]] {
 
-      override def apply(key:String, value: String):KeyValue[String,Long] = {
+      override def apply(key:String, value: String):KeyValue[String,Int] = {
         new KeyValue(value, 1)
       }
 
     }
-    val lines = textLines.flatMapValues[String](valueMapper).map[String,Long](keyValueMapper)
-    val kTable = lines.countByKey("Counts")
-    kTable.print()
+    val lines = textLines.flatMapValues[String](valueMapper).map[String,Int](keyValueMapper)
+    val kTable = lines.countByKey(Serdes.String(),"Counts")
+    //val kTable = lines.countByKey("Counts")
+    val newStream = kTable.toStream
+    newStream.print()
 
     val streams = new KafkaStreams(builder,props)
     streams.start()
