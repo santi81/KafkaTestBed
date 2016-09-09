@@ -20,7 +20,7 @@ import java.util.Properties
 import org.apache.kafka.common.serialization._
 import org.apache.kafka.streams._
 import org.apache.kafka.streams.kstream.{KStream, KStreamBuilder}
-import KeyValueImplicits._
+import scala.collection.JavaConverters._
 /**
   * Demonstrates how to perform simple, state-less transformations via map functions.
   * Same as [[MapFunctionLambdaExample]] but in Scala.
@@ -111,6 +111,7 @@ object MapFunctionScalaExample {
     val textLines: KStream[String, String] = builder.stream("kafka_streams_testing4")
 
     // Variant 1: using `mapValues`
+    import KeyValueImplicits._
     val uppercasedWithMapValues: KStream[String, String] = textLines.mapValues(_.toUpperCase())
 
     val flatMap:KStream[String, String] = uppercasedWithMapValues.flatMapValues(_.split(" ").toList.asJava)

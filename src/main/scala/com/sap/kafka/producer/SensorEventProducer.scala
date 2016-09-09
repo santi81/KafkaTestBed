@@ -5,7 +5,6 @@ import java.util.HashMap
 
 import com.sap.kafka.producer.SensorEventProducer._
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerConfig, ProducerRecord}
-import kafka.admin.AdminUtils
 
 object SensorEventProducer {
 
