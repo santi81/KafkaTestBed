@@ -19,7 +19,7 @@ import java.util.Properties
 
 import org.apache.kafka.common.serialization._
 import org.apache.kafka.streams._
-import org.apache.kafka.streams.kstream.{KStream, KStreamBuilder}
+import org.apache.kafka.streams.kstream.{TimeWindows, KStream, KStreamBuilder}
 import scala.collection.JavaConverters._
 /**
   * Demonstrates how to perform simple, state-less transformations via map functions.
@@ -118,7 +118,10 @@ object MapFunctionScalaExample {
 
     val filteredMap:KStream[String, String] = flatMap.filter((key,value) => value == "GERMANY")
 
-    // filteredMap.print()
+
+
+
+    //filteredMap.print()
 
     // flatMap.print()
 
@@ -150,8 +153,10 @@ object MapFunctionScalaExample {
 
 
 
-    val kTable = originalAndUppercased.countByKey(stringSerde,"TopicCounts")
-    //kTable.print(stringSerde,Serdes.Long())
+
+
+    val kTable = originalAndUppercased.countByKey(TimeWindows.of("PageViewCountWindows", 2 * 60 * 1000L),stringSerde)
+    kTable.toStream.print()
 
     // Write the results to a new Kafka topic "OriginalAndUppercasedTopic".
     //
