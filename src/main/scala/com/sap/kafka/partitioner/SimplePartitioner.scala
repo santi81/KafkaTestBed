@@ -22,8 +22,8 @@ class SimplePartitioner extends Partitioner{
   override def partition(topic: String, key: AnyRef, keyBytes: Array[Byte],
                          value: AnyRef, valueBytes: Array[Byte], cluster: Cluster) : Int = {
 
-    println(s"Topic Name : $topic")
-    println(s"Key is $key.toString")
+    //println(s"Topic Name : $topic")
+    //println(s"Key is $key.toString")
     val r = scala.util.Random
     r.nextInt(3)
   }

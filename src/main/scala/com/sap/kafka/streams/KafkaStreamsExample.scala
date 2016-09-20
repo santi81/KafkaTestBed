@@ -1,9 +1,9 @@
-package com.sap.kafka.consumer
+package com.sap.kafka.streams
 
 import java.util.Locale
 
 import org.apache.kafka.clients.consumer.ConsumerConfig
-import org.apache.kafka.common.serialization.{Serde, Serdes}
+import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.kstream._
 import org.apache.kafka.streams.{KafkaStreams, KeyValue, StreamsConfig}
 
