@@ -42,7 +42,8 @@ object KafkaProducerWithAcks {
         val message = new ProducerRecord[String, String](kafkaTopic, null, data)
         producer.send(message,new Callback {
           override def onCompletion(metadata: RecordMetadata, exception: Exception): Unit = {
-            println(s"Message has been published to ${metadata.partition()}")
+            // println(s"Message has been published to ${metadata.partition()}")
+            println(s"""The message offset is ${metadata.offset()}""")
           }
         })
       }
