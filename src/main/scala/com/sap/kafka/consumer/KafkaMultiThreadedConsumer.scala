@@ -1,69 +1,107 @@
 package com.sap.kafka.consumer
 
 import java.util
+import java.util.concurrent.{Executors, TimeUnit}
 
+import io.confluent.kafka.serializers.KafkaAvroDeserializer
 import org.apache.kafka.clients.consumer._
 import org.apache.kafka.common.TopicPartition
+import org.apache.kafka.common.errors.WakeupException
 
 import scala.collection.JavaConverters._
 
 object KafkaMultiThreadedConsumer {
 
+  def main(args: Array[String]): Unit = {
+
+    val numConsumers = 5
+
+    val executor = Executors.newFixedThreadPool(numConsumers)
+
+    val consumerList = new java.util.ArrayList[consumerLoop]()
+    for (x <- 1 to numConsumers) {
+      val newConsumer = new consumerLoop()
+      consumerList.add(newConsumer)
+      executor.submit(newConsumer)
+    }
+
+    Runtime.getRuntime.addShutdownHook(new Thread() {
+
+      override def run: Unit = {
+        consumerList.asScala.foreach(_.shutDown())
+        executor.shutdown()
+        try {
+          executor.awaitTermination(5000, TimeUnit.MILLISECONDS)
+        }
+        catch {
+          case e: InterruptedException =>
+            e.printStackTrace()
+        }
+      }
+    }
+    )
+
+  }
+}
+
+class consumerLoop extends Runnable {
 
   val kafkaTopic = "topic-with-3-partitions"    // command separated list of topics
   val kafkaBrokers = "10.97.136.161:9092"   // comma separated list of broker:host
-  val schemaRegistryUrl = "http://10.97.136.161:8081" // Schema registry URL
-  val VALUE_SERIALIZATION_FLAG = "value"
+  val props = new java.util.HashMap[String, Object]()
+  props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBrokers)
+  props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+    "org.apache.kafka.common.serialization.StringDeserializer")
+  props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
+    "org.apache.kafka.common.serialization.StringDeserializer")
+  props.put("schema.registry.url", "http://10.97.136.161:8081")
+  props.put("group.id", "testgroup1")
+  props.put("enable.auto.commit", "true")
+  props.put("auto.commit.interval.ms", "1000")
+  props.put("session.timeout.ms", "30000")
 
-  def main(args: Array[String]): Unit = {
+  val consumer = new KafkaConsumer[String,String](props)
 
-    val props = new java.util.HashMap[String, Object]()
-    props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBrokers)
-    props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
-      "org.apache.kafka.common.serialization.StringDeserializer")
-    props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
-      "org.apache.kafka.common.serialization.StringDeserializer")
-    props.put("group.id", "testgroup1")
-    props.put("enable.auto.commit", "false")
-    props.put("session.timeout.ms", "30000")
+  override def run() : Unit = {
 
-    val consumer = new KafkaConsumer[String,String](props)
-    consumer.subscribe(util.Arrays.asList(kafkaTopic),new ConsumerRebalanceListener(){
-      override def onPartitionsAssigned (partitions: util.Collection[TopicPartition]) : Unit = {
-        println(s"Partition Assigned currently to this consumer are ${util.Arrays.toString(partitions.toArray)}")
-
-        partitions.asScala.foreach(topicPartition => {
-
-          val offsetMetadata = consumer.committed(topicPartition)
-          println(s"Topic: ${topicPartition.topic()} Partition: ${topicPartition.partition()}")
-          println(s"""committed offset ${offsetMetadata.offset}""")
-
-        })
-      }
-
-      override def  onPartitionsRevoked (partitions: util.Collection[TopicPartition]) : Unit = {
-        println(s"Partition Revoked currently to this consumer are ${util.Arrays.toString(partitions.toArray)}")
-      }
-    })
-
-
+    println(s"""Run Method invoked for Thread : ${Thread.currentThread().getId}""")
     try{
+      consumer.subscribe(util.Arrays.asList(kafkaTopic),new ConsumerRebalanceListener(){
+        override def onPartitionsAssigned (partitions: util.Collection[TopicPartition]) : Unit = {
+          println(s"Partition Assigned currently to this Thread with ID:" +
+            s" ${Thread.currentThread().getId}  are ${util.Arrays.toString(partitions.toArray)}")
+        }
+        override def  onPartitionsRevoked (partitions: util.Collection[TopicPartition]) : Unit = {
+
+          println(s"Partition Revoked currently to this Thread with ID ${Thread.currentThread().getId}" +
+            s" are ${util.Arrays.toString(partitions.toArray)}")
+        }
+      })
       while(true) {
         val records: ConsumerRecords[String, String] = consumer.poll(100)
         val recordIterator: java.util.Iterator[ConsumerRecord[String, String]] = records.iterator()
-        /*if(recordIterator.hasNext)
-          println(s"""Offset being read is : ${recordIterator.next().offset()}""")*/
         while(recordIterator.hasNext)
         {
           val currentRecord :ConsumerRecord[String,String] = recordIterator.next()
-          // println(currentRecord)
-
+          // println(s"""Thread ID: ${Thread.currentThread().getId} and Partition : ${currentRecord.partition()}""")
         }
-        /*Commits the offset for all topics/partitions read by the last poll */
-        consumer.commitAsync()
       }
     }
-
+    catch {
+      case ex: WakeupException =>
+        println( s"""WakeupException : ${ex.printStackTrace()}""")
+      // Do Nothing
+      case e: Exception => e.printStackTrace()
+    }
+    finally {
+      println("Finally Called")
+      consumer.close()
+    }
   }
 
+  def shutDown() : Unit = {
+    consumer.wakeup()
   }
+
+
+}
