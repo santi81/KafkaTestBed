@@ -6,7 +6,7 @@ import scala.util.Random
 object SimpleKafkaProducer {
 
   //TO-DO : Replace with your Kafka Topic
-  val kafkaTopic = "attendee00-simple-topic"    // command separated list of topics
+  val kafkaTopic = "attendee00-simple-topic1"    // command separated list of topics
   // topic.autocreate is set to true.Hence it creates a topic if the topic doesnt exist
   // default topic.partitions is set to 1
 
@@ -14,7 +14,7 @@ object SimpleKafkaProducer {
   val kafkaBrokers = "10.97.183.115:9092,10.97.191.51:9092,10.97.152.59:9092,10.97.152.66:9092"   // comma separated list of broker:host
 
   // === Configurations of amount of data to produce ===
-  val recordsPerSecond = 100000
+  val recordsPerSecond = 10000
   val wordsPerRecord = 10
   val numSecondsToSend = 120
   val randomWords = List("Germany", "India", "USA")

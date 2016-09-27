@@ -7,7 +7,7 @@ import org.apache.kafka.clients.consumer._
 object SimpleKafkaConsumer {
 
 
-  val kafkaTopic = "attendee00-simple-topic"    // command separated list of topics
+  val kafkaTopic = "attendee00-simple-topic1"    // command separated list of topics
   val kafkaBrokers = "10.97.183.115:9092,10.97.191.51:9092,10.97.152.59:9092,10.97.152.66:9092" //comma seperated list of brokers
 
   def main(args: Array[String]): Unit = {
@@ -52,8 +52,14 @@ object SimpleKafkaConsumer {
           // println(currentRecord)
 
         }
-        Thread.sleep(1000)
       }
+    }
+    catch {
+      case ex : Exception =>
+        ex.printStackTrace()
+    }
+    finally {
+      consumer.close()
     }
 
   }
