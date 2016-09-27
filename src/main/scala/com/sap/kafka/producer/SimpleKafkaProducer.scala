@@ -1,13 +1,17 @@
 package com.sap.kafka.producer
-import java.util.HashMap
+import org.apache.kafka.clients.producer.{KafkaProducer, ProducerConfig, ProducerRecord}
+
 import scala.util.Random
-import org.apache.kafka.clients.producer.{ProducerConfig, KafkaProducer, ProducerRecord}
 
-object KafkaProducerDemo {
+object SimpleKafkaProducer {
 
-  val kafkaTopic = "kafka_streams_testing4"    // command separated list of topics
-  val kafkaBrokers = "10.97.136.161:9092"   // comma separated list of broker:host
-  //val kafkaBrokers = "172.16.204.11:6667,172.16.204.14:6667,172.16.204.15:6667,172.16.204.16:6667"   // comma separated list of broker:host
+  //TO-DO : Replace with your Kafka Topic
+  val kafkaTopic = "attendee00-simple-topic"    // command separated list of topics
+  // topic.autocreate is set to true.Hence it creates a topic if the topic doesnt exist
+  // default topic.partitions is set to 1
+
+
+  val kafkaBrokers = "10.97.183.115:9092,10.97.191.51:9092,10.97.152.59:9092,10.97.152.66:9092"   // comma separated list of broker:host
 
   // === Configurations of amount of data to produce ===
   val recordsPerSecond = 100000
@@ -19,16 +23,23 @@ object KafkaProducerDemo {
 
   def main(args: Array[String]): Unit = {
     val props = new java.util.HashMap[String, Object]()
+
+    //Kafka Brokers
     props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBrokers)
-    props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
-      "org.apache.kafka.common.serialization.StringSerializer")
+
+    //Key Serializer
     props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
+      "org.apache.kafka.common.serialization.StringSerializer")
+
+    // Value Serializer
+    props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
       "org.apache.kafka.common.serialization.StringSerializer")
 
 
     println(s"Putting records onto Kafka topic $kafkaTopic at a rate of" +
       s" $recordsPerSecond records per second with $wordsPerRecord words per record for $numSecondsToSend seconds")
 
+    //Instantiate the Kafka Producer with the properties config
     val producer = new KafkaProducer[String, String](props)
 
     // Generate and send the data
