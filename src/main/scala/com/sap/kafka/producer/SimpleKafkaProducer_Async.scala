@@ -31,6 +31,8 @@ object SimpleKafkaProducer_Async {
     props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
       "org.apache.kafka.common.serialization.StringSerializer")
 
+    props.put("acks","all")
+
 
     println(s"Putting records onto Kafka topic $kafkaTopic at a rate of" +
       s" $recordsPerSecond records per second with $wordsPerRecord words per record for $numSecondsToSend seconds")

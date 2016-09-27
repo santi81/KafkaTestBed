@@ -57,6 +57,15 @@ object SimpleKafkaProducer_Fire_And_Forget {
     // which will cause the send call to result in an exception.
     // props.put("buffer.memory", 33554432)
 
+    //How data should be compressed.
+    // Values are none, snappy, gzip, lz4. Compression is performed on batches of records
+    // props.put("compression.type","none")
+
+    //The acks config controls the criteria under which requests are considered complete.
+    // The "all" setting we have specified will result in blocking on the full commit of the record,
+    // the slowest but most durable setting.
+    props.put("acks","0")
+
 
     println(s"Putting records onto Kafka topic $kafkaTopic at a rate of" +
       s" $recordsPerSecond records per second with $wordsPerRecord words per record for $numSecondsToSend seconds")
@@ -81,11 +90,9 @@ object SimpleKafkaProducer_Fire_And_Forget {
         }
         catch {
           case ex : Exception =>
+            println("Error sending Message")
             ex.printStackTrace()
-        }
-        finally
-        {
-           producer.close()
+            System.exit(1)
         }
       }
       Thread.sleep(1000) // Sleep for a second
