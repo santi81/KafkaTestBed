@@ -1,7 +1,7 @@
 
 
 The project contains Several examples for the Kafka Training.
-Most of the examples are in Scala 
+Most of the examples (Actually all) are in Scala 
 
 Zoo-Keeper Nodes : 
 
