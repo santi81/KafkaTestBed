@@ -49,7 +49,7 @@ object SimpleKafkaConsumer {
         while(recordIterator.hasNext)
         {
           val currentRecord :ConsumerRecord[String,String] = recordIterator.next()
-          // println(currentRecord)
+          println(currentRecord.offset())
 
         }
       }

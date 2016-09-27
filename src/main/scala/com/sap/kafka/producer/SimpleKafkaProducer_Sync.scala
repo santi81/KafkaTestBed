@@ -56,6 +56,7 @@ object SimpleKafkaProducer_Sync {
         // If there were no errors, we will get a RecordMetadata object which we can use to retrieve
         // the offset the message was written to.
         val recordMetadata = producer.send(message).get()
+        println(recordMetadata.offset())
       }
       Thread.sleep(1000) // Sleep for a second
       println(s"Sent $recordsPerSecond records with $wordsPerRecord words each")
