@@ -52,6 +52,7 @@ class KafkaActor extends Actor {
     try{
       consumer.subscribe(util.Arrays.asList(kafkaTopic),new ConsumerRebalanceListener(){
         override def onPartitionsAssigned (partitions: util.Collection[TopicPartition]) : Unit = {
+          
           println(s"Partition Assigned currently to this Thread with ID:" +
             s" ${Thread.currentThread().getId}  are ${util.Arrays.toString(partitions.toArray)}")
         }
