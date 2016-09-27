@@ -3,6 +3,8 @@ import org.apache.kafka.clients.producer.{KafkaProducer, ProducerConfig, Produce
 
 import scala.util.Random
 
+
+// This is a Simple Asynchronous Kafka Producer producing to a topic with single partition
 object SimpleKafkaProducer {
 
   //TO-DO : Replace with your Kafka Topic
