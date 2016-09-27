@@ -59,7 +59,7 @@ object SimpleKafkaProducer_Fire_And_Forget {
 
     //How data should be compressed.
     // Values are none, snappy, gzip, lz4. Compression is performed on batches of records
-    // props.put("compression.type","none")
+     props.put("compression.type","snappy")
 
     //The acks config controls the criteria under which requests are considered complete.
     // The "all" setting we have specified will result in blocking on the full commit of the record,
