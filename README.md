@@ -1,5 +1,7 @@
-# The project contains Several examples for the Kafka Training.
-# Most of the examples are in Scala 
+
+
+The project contains Several examples for the Kafka Training.
+Most of the examples are in Scala 
 
 Kafka-Brokers :
 
