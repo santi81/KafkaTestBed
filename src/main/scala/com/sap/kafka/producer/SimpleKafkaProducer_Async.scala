@@ -4,14 +4,19 @@ import org.apache.kafka.clients.producer._
 
 import scala.util.Random
 
-object KafkaProducerWithAcks {
+object SimpleKafkaProducer_Async {
 
-  val kafkaTopic = "topic-with-3-partitions"    // command separated list of topics
-  val kafkaBrokers = "10.97.136.161:9092"   // comma separated list of broker:host
-  //val kafkaBrokers = "172.16.204.11:6667,172.16.204.14:6667,172.16.204.15:6667,172.16.204.16:6667"   // comma separated list of broker:host
+  //TO-DO : Replace with your Kafka Topic
+  val kafkaTopic = "attendee00-simple-topic1"    // command separated list of topics
+  // topic.autocreate is set to true. Hence it creates a topic if the topic doesnt exist
+  // default topic.partitions is set to 1
+
+
+  val kafkaBrokers = "10.97.183.115:9092,10.97.191.51:9092,10.97.152.59:9092,10.97.152.66:9092"
+     // comma separated list of broker:host
 
   // === Configurations of amount of data to produce ===
-  val recordsPerSecond = 100000
+  val recordsPerSecond = 10000
   val wordsPerRecord = 10
   val numSecondsToSend = 120
   val randomWords = List("Germany", "India", "USA")
@@ -25,9 +30,6 @@ object KafkaProducerWithAcks {
       "org.apache.kafka.common.serialization.StringSerializer")
     props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
       "org.apache.kafka.common.serialization.StringSerializer")
-    props.put(ProducerConfig.PARTITIONER_CLASS_CONFIG,
-      "com.sap.kafka.partitioner.SimplePartitioner")
-
 
 
     println(s"Putting records onto Kafka topic $kafkaTopic at a rate of" +
