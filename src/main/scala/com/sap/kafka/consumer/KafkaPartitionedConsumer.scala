@@ -8,10 +8,9 @@ import org.apache.kafka.common.TopicPartition
 object KafkaPartitionedConsumer {
 
 
-  val kafkaTopic = "topic-with-3-partitions"    // command separated list of topics
-  val kafkaBrokers = "10.97.136.161:9092"   // comma separated list of broker:host
-  val schemaRegistryUrl = "http://10.97.136.161:8081" // Schema registry URL
-  val VALUE_SERIALIZATION_FLAG = "value"
+  val kafkaTopic = "attendee00-partitioned-topic"    // command separated list of topics
+  val kafkaBrokers = "10.97.183.115:9092,10.97.191.51:9092,10.97.152.59:9092,10.97.152.66:9092"
+  // comma separated list of broker:host
 
   def main(args: Array[String]): Unit = {
 
@@ -44,12 +43,13 @@ object KafkaPartitionedConsumer {
       while(true) {
         val records: ConsumerRecords[String, String] = consumer.poll(100)
         val recordIterator: java.util.Iterator[ConsumerRecord[String, String]] = records.iterator()
-
+        var currentRecord: ConsumerRecord[String,String] = null
         while(recordIterator.hasNext)
         {
-          val currentRecord :ConsumerRecord[String,String] = recordIterator.next()
-
+          currentRecord = recordIterator.next()
         }
+        if(currentRecord != null)
+        println(s"Last Read offset is ${currentRecord.offset()} and partition is ${currentRecord.partition()}")
       }
     }
 

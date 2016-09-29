@@ -42,16 +42,19 @@ object KafkaPartitionedProducer {
 
     // Topic doesnt exist.Though auto.create is enabled it by default it creates 1 partition.
     // Here we try to directly create a topic by using kafkaCreateTopic
-    try {
-      AdminUtils.createTopic(ZkUtils.apply("10.97.183.115:2181", 10000, 10000, isZkSecurityEnabled = false)
-        , kafkaTopic, numPartitions, iSR, new Properties())
+    val topicExists = AdminUtils.topicExists(ZkUtils.apply("10.97.183.115:2181", 10000, 10000, isZkSecurityEnabled = false)
+      , kafkaTopic)
+    if(!topicExists) {
+      try {
+        AdminUtils.createTopic(ZkUtils.apply("10.97.183.115:2181", 10000, 10000, isZkSecurityEnabled = false)
+          , kafkaTopic, numPartitions, iSR, new Properties())
+      }
+      catch {
+        case ex: Exception =>
+          println("Exception creating topic.Terminating")
+          System.exit(1)
+      }
     }
-    catch {
-      case ex : Exception =>
-        println("Exception creating topic.Terminating")
-        System.exit(1)
-    }
-
 
     println(s"Putting records onto Kafka topic $kafkaTopic at a rate of" +
       s" $recordsPerSecond records per second with $wordsPerRecord words per record for $numSecondsToSend seconds")
