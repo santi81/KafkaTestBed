@@ -56,7 +56,7 @@ object KafkaConsumer {
         // Each call to poll returns a (possibly empty) list of messages.
         // The parameter controls the maximum amount of time in ms that the Consumer will block
         // if no new records are available. If records are available, it will return immediately.
-        val records: ConsumerRecords[String, String] = consumer.poll(100)
+        val records: ConsumerRecords[String, String] = consumer.poll(1000)
 
         val recordIterator: java.util.Iterator[ConsumerRecord[String, String]] = records.iterator()
         println(s"""Number of records received is ${records.count()}""")
@@ -78,5 +78,4 @@ object KafkaConsumer {
     }
 
   }
-
   }
