@@ -3,7 +3,6 @@ package com.sap.kafka.consumer
 import java.util
 import java.util.concurrent.{Executors, TimeUnit}
 
-import io.confluent.kafka.serializers.KafkaAvroDeserializer
 import org.apache.kafka.clients.consumer._
 import org.apache.kafka.common.TopicPartition
 import org.apache.kafka.common.errors.WakeupException

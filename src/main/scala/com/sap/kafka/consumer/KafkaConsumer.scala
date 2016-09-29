@@ -4,7 +4,7 @@ import java.util
 
 import org.apache.kafka.clients.consumer._
 
-object SimpleKafkaConsumer {
+object KafkaConsumer {
 
 
   val kafkaTopic = "attendee00-simple-topic1"    // command separated list of topics
