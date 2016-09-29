@@ -45,15 +45,15 @@ object KafkaMultiThreadedConsumer {
 
 class consumerLoop extends Runnable {
 
-  val kafkaTopic = "topic-with-3-partitions"    // command separated list of topics
-  val kafkaBrokers = "10.97.136.161:9092"   // comma separated list of broker:host
+  val kafkaTopic = "attendee00-partitioned-topic"    // command separated list of topics
+  val kafkaBrokers = "10.97.183.115:9092,10.97.191.51:9092,10.97.152.59:9092,10.97.152.66:9092"
+  // comma separated list of broker:host
   val props = new java.util.HashMap[String, Object]()
   props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBrokers)
   props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
     "org.apache.kafka.common.serialization.StringDeserializer")
   props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
     "org.apache.kafka.common.serialization.StringDeserializer")
-  props.put("schema.registry.url", "http://10.97.136.161:8081")
   props.put("group.id", "testgroup1")
   props.put("enable.auto.commit", "true")
   props.put("auto.commit.interval.ms", "1000")
@@ -82,7 +82,7 @@ class consumerLoop extends Runnable {
         while(recordIterator.hasNext)
         {
           val currentRecord :ConsumerRecord[String,String] = recordIterator.next()
-          // println(s"""Thread ID: ${Thread.currentThread().getId} and Partition : ${currentRecord.partition()}""")
+          println(s"""Thread ID: ${Thread.currentThread().getId} and Partition : ${currentRecord.partition()}""")
         }
       }
     }
