@@ -30,12 +30,10 @@ object KafkaPartitionedConsumer {
       override def onPartitionsAssigned (partitions: util.Collection[TopicPartition]) : Unit = {
         println(s"Partition Assigned currently to this consumer are ${util.Arrays.toString(partitions.toArray)}")
       }
-
       override def  onPartitionsRevoked (partitions: util.Collection[TopicPartition]) : Unit = {
 
         println(s"Partition Revoked currently to this consumer are ${util.Arrays.toString(partitions.toArray)}")
       }
-
     })
 
 
