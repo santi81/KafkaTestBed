@@ -7,7 +7,7 @@ import model.{MyRecord}
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.consumer.{ConsumerConfig, ConsumerRecord, ConsumerRecords, KafkaConsumer}
 
-object KafkaAvroConsumerWithSchemaRegistry {
+object KafkaAvroConsumer {
 
 
   val kafkaTopic = "attendee00-kafka-avro-registry"    // command separated list of topics
