@@ -3,13 +3,14 @@ package com.sap.kafka.consumer
 import java.util
 
 import io.confluent.kafka.serializers.KafkaAvroDeserializer
-import model.{CardSuite, SimpleCard}
+import model.{MyRecord}
+import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.consumer.{ConsumerConfig, ConsumerRecord, ConsumerRecords, KafkaConsumer}
 
 object KafkaAvroConsumerWithSchemaRegistry {
 
 
-  val kafkaTopic = "kafka-avro-registry1"    // command separated list of topics
+  val kafkaTopic = "attendee00-kafka-avro-registry"    // command separated list of topics
   val kafkaBrokers = "10.97.136.161:9092"   // comma separated list of broker:host
 
   def main(args: Array[String]): Unit = {
@@ -26,21 +27,18 @@ object KafkaAvroConsumerWithSchemaRegistry {
     props.put("auto.commit.interval.ms", "1000")
     props.put("session.timeout.ms", "30000")
 
-    val consumer = new KafkaConsumer[CardSuite,SimpleCard](props)
+    val consumer = new KafkaConsumer[GenericRecord,MyRecord](props)
     consumer.subscribe(util.Arrays.asList(kafkaTopic))
 
     while(true) {
-      val records: ConsumerRecords[CardSuite, SimpleCard] = consumer.poll(100)
-      val recordIterator: java.util.Iterator[ConsumerRecord[CardSuite, SimpleCard]] = records.iterator()
+      val records: ConsumerRecords[GenericRecord, MyRecord] = consumer.poll(100)
+      val recordIterator: java.util.Iterator[ConsumerRecord[GenericRecord, MyRecord]] = records.iterator()
       while(recordIterator.hasNext)
         {
-          val currentRecord :ConsumerRecord[CardSuite,SimpleCard] = recordIterator.next()
+          val currentRecord :ConsumerRecord[GenericRecord,MyRecord] = recordIterator.next()
           println(s"""${currentRecord.offset()}, ${currentRecord.
-            key().getSuit}, ${currentRecord.value().getCard}""")
-
+            value().getStr1},${currentRecord.value().getStr2}""")
         }
-
-
     }
 
 

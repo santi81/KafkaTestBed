@@ -1,13 +1,13 @@
 package com.sap.kafka.producer
 
 import io.confluent.kafka.serializers.KafkaAvroSerializer
-import model.{SimpleCard, CardSuite}
+import model.{MyRecord}
 import org.apache.avro.generic.GenericRecord
-import org.apache.kafka.clients.producer.{KafkaProducer, ProducerConfig, ProducerRecord}
+import org.apache.kafka.clients.producer._
 
-object KafkaAvroProducerWithSchemaRegistry {
+object KafkaAvroProducer {
 
-  val kafkaTopic = "kafka-avro-registry1"    // command separated list of topics
+  val kafkaTopic = "attendee00-kafka-avro-registry"    // command separated list of topics
   val kafkaBrokers = "10.97.136.161:9092"   // comma separated list of broker:host
 
   def main(args: Array[String]): Unit = {
@@ -24,10 +24,14 @@ object KafkaAvroProducerWithSchemaRegistry {
     val avroProducer = new KafkaProducer[GenericRecord, GenericRecord](props)
 
     // Create the Avro objects for the key and value
-    val suit = new CardSuite("spades")
-    val card = new SimpleCard("spades", "ace")
-    val record = new ProducerRecord[GenericRecord, GenericRecord](kafkaTopic, suit, card)
-    avroProducer.send(record)
+    val avroRecord = new MyRecord("field1","field2")
+    val record = new ProducerRecord[GenericRecord, GenericRecord](kafkaTopic, null, avroRecord )
+    avroProducer.send(record,new Callback {
+      override def onCompletion(metadata: RecordMetadata, exception: Exception): Unit = {
+        // println(s"Message has been published to ${metadata.partition()}")
+        println(s"""The message offset is ${metadata.offset()}""")
+      }
+    })
     avroProducer.close()
   }
 }

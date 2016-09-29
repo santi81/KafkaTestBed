@@ -5,7 +5,7 @@ import scala.util.Random
 
 
 // This is a Simple Asynchronous Kafka Producer producing to a topic with single partition
-object SimpleKafkaProducer_Fire_And_Forget {
+object KafkaProducer_Fire_And_Forget {
 
   //TO-DO : Replace with your Kafka Topic
   val kafkaTopic = "attendee00-simple-topic1"    // command separated list of topics
