@@ -1,0 +1,15 @@
+{
+  "namespace": "model", "type": "record", "name": "MyRecord",
+  "fields": [
+  {
+    "name": "str1",
+    "type": "string",
+    "doc" : "String1"
+  },
+    {
+    "name": "str2",
+    "type": "string",
+    "doc" : "String2"
+  }
+    ]
+}
