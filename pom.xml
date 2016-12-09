@@ -33,9 +33,16 @@
         <scalatest.version>2.2.6</scalatest.version>
         <avro.version>1.8.1</avro.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <gatling.version>2.2.2</gatling.version>
+        <gatling-plugin.version>2.2.0</gatling-plugin.version>
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>io.gatling.highcharts</groupId>
+            <artifactId>gatling-charts-highcharts</artifactId>
+            <version>${gatling.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-core_2.11</artifactId>
@@ -53,7 +60,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
-            <artifactId>spark-streaming_2.10</artifactId>
+            <artifactId>spark-streaming_2.11</artifactId>
             <version>1.5.2</version>
         </dependency>
         <dependency>
@@ -102,6 +109,11 @@
             <version>2.1.2</version>
         </dependency>
         <dependency>
+            <groupId>com.sap.db.jdbc</groupId>
+            <artifactId>ngdbc</artifactId>
+            <version>1.120.4</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>connect-api</artifactId>
             <version>${kafka.version}</version>
@@ -130,11 +142,36 @@
             <artifactId>avro-maven-plugin</artifactId>
             <version>${avro.version}</version>
         </dependency>
-        <dependency>
+        <!--dependency>
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>
-            <!-- This version must be compatible with the Scala version of the Kafka dependency. -->
+            < This version must be compatible with the Scala version of the Kafka dependency.>
             <version>${scala.version}</version>
+        </dependency-->
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-compiler</artifactId>
+            <version>${scala.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-reflect</artifactId>
+            <version>${scala.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.typesafe.akka</groupId>
+            <artifactId>akka-actor_2.11</artifactId>
+            <version>2.4.11</version>
+        </dependency>
+        <dependency>
+            <groupId>com.typesafe.akka</groupId>
+            <artifactId>akka-remote_2.11</artifactId>
+            <version>2.4.11</version>
+        </dependency>
+        <dependency>
+            <groupId>com.typesafe.akka</groupId>
+            <artifactId>akka-slf4j_2.11</artifactId>
+            <version>2.4.7</version>
         </dependency>
         <dependency>
             <!-- This could be a test-only dependency, but we keep it a compile dependency so that
@@ -242,7 +279,7 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
+            <!--plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>2.4.3</version>
@@ -261,7 +298,7 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -288,6 +325,19 @@
                             <sourceDirectory>${project.basedir}/src/main/avro/</sourceDirectory>
                             <outputDirectory>${project.basedir}/src/main/java/</outputDirectory>
                         </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>io.gatling</groupId>
+                <artifactId>gatling-maven-plugin</artifactId>
+                <version>${gatling-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <phase></phase>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>
