@@ -105,7 +105,7 @@ object MapFunctionScalaExample {
       settings
     }
 
-    val stringSerde: Serde[String] = Serdes.String()
+   /* val stringSerde: Serde[String] = Serdes.String()
 
     // Read the input Kafka topic into a KStream instance.
     val textLines: KStream[String, String] = builder.stream("kafka_streams_testing4")
@@ -117,7 +117,7 @@ object MapFunctionScalaExample {
     val flatMap:KStream[String, String] = uppercasedWithMapValues.flatMapValues(_.split(" ").toList.asJava)
 
     val filteredMap:KStream[String, String] = flatMap.filter((key,value) => value == "GERMANY")
-
+*/
 
 
 
@@ -149,14 +149,14 @@ object MapFunctionScalaExample {
     // Note: Whether, in general, you should follow this artificial example and store the original
     //       value in the key field is debatable and depends on your use case.  If in doubt, don't
     //       do it.
-    val originalAndUppercased: KStream[String, Int] = flatMap.map((key, value) => (value, 1))
+    /*val originalAndUppercased: KStream[String, Int] = flatMap.map((key, value) => (value, 1))*/
 
 
 
 
 
-    val kTable = originalAndUppercased.countByKey(TimeWindows.of("PageViewCountWindows", 2 * 60 * 1000L),stringSerde)
-    kTable.toStream.print()
+    /*val kTable = originalAndUppercased.countByKey(TimeWindows.of("PageViewCountWindows", 2 * 60 * 1000L),stringSerde)
+    kTable.toStream.print()*/
 
     // Write the results to a new Kafka topic "OriginalAndUppercasedTopic".
     //
@@ -166,8 +166,8 @@ object MapFunctionScalaExample {
     //originalAndUppercased.print()
     //originalAndUppercased.to(stringSerde, stringSerde, "OriginalAndUppercasedTopic")
 
-    val stream: KafkaStreams = new KafkaStreams(builder, streamingConfig)
-    stream.start()
+    /*val stream: KafkaStreams = new KafkaStreams(builder, streamingConfig)
+    stream.start()*/
   }
 
 }

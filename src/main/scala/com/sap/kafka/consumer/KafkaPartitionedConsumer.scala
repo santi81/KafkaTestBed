@@ -20,7 +20,7 @@ object KafkaPartitionedConsumer {
       "org.apache.kafka.common.serialization.StringDeserializer")
     props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
       "org.apache.kafka.common.serialization.StringDeserializer")
-    props.put("group.id", "testgroup1")
+    props.put("group.id", "testgroup2")
     props.put("enable.auto.commit", "true")
     props.put("auto.commit.interval.ms", "1000")
     props.put("session.timeout.ms", "30000")

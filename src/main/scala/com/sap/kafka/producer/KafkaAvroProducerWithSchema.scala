@@ -2,15 +2,14 @@ package com.sap.kafka.producer
 
 import io.confluent.kafka.serializers.KafkaAvroSerializer
 import org.apache.avro.Schema
-import org.apache.avro.generic.GenericData.Record
 import org.apache.avro.generic.{GenericData, GenericRecord}
 import org.apache.kafka.clients.producer._
-import org.apache.avro.file.DataFileReader
+
 import scala.io.Source
 
 object KafkaAvroProducerWithSchema {
 
-  val kafkaTopic = "attendee00-kafka-avro-registry"    // command separated list of topics
+  val kafkaTopic = "vora_1"    // command separated list of topics
   val kafkaBrokers = "10.97.136.161:9092"   // comma separated list of broker:host
 
   def main(args: Array[String]): Unit = {

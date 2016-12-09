@@ -40,14 +40,14 @@ object KafkaStreamsExample {
       }
 
     }
-    val lines = textLines.flatMapValues[String](valueMapper).map[String,Int](keyValueMapper)
+    /*val lines = textLines.flatMapValues[String](valueMapper).map[String,Int](keyValueMapper)
     val kTable = lines.countByKey(Serdes.String(),"Counts")
     //val kTable = lines.countByKey("Counts")
     val newStream = kTable.toStream
-    newStream.print()
+    newStream.print()*/
 
-    val streams = new KafkaStreams(builder,props)
-    streams.start()
+    /*val streams = new KafkaStreams(builder,props)
+    streams.start()*/
 
   }
 }
