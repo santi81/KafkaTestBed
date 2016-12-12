@@ -13,7 +13,7 @@ import scala.collection.JavaConverters._
 object KafkaAvroConsumerWithSchema {
 
 
-  val kafkaTopic = "attendee00-kafka-avro-registry"    // command separated list of topics
+  val kafkaTopic = "vora_2"    // command separated list of topics
   val kafkaBrokers = "10.97.136.161:9092"   // comma separated list of broker:host
   val schemaRegistryUrl = "http://10.97.136.161:8081" // Schema registry URL
   val VALUE_SERIALIZATION_FLAG = "value"
@@ -26,7 +26,9 @@ object KafkaAvroConsumerWithSchema {
     props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
       classOf[KafkaAvroDeserializer])
     props.put("schema.registry.url", "http://10.97.136.161:8081")
-    props.put("specific.avro.reader", "true")
+    // props.put("specific.avro.reader", "true")
+
+    props.put("max.poll.records", "10000")
     props.put("group.id", "testgroup1")
     props.put("enable.auto.commit", "true")
     props.put("auto.commit.interval.ms", "1000")
@@ -44,8 +46,11 @@ object KafkaAvroConsumerWithSchema {
 
     while(true) {
       val records: ConsumerRecords[GenericRecord, GenericRecord] = consumer.poll(100)
-      val recordIterator: java.util.Iterator[ConsumerRecord[GenericRecord, GenericRecord]] = records.iterator()
-      while(recordIterator.hasNext)
+      println(records.count())
+      // val recordIterator: java.util.Iterator[ConsumerRecord[GenericRecord, GenericRecord]] = records.iterator()
+      // val someCollection = recordIterator.asInstanceOf[List[ConsumerRecord[GenericRecord,GenericRecord]]]
+      // println(someCollection.size)
+      /*while(recordIterator.hasNext)
         {
           val currentRecord :ConsumerRecord[GenericRecord,GenericRecord] = recordIterator.next()
           println(s"""${currentRecord.offset()}""")
@@ -53,7 +58,7 @@ object KafkaAvroConsumerWithSchema {
             print(currentRecord.value().get(x.pos))
           })
           println()
-        }
+        }*/
     }
 
 

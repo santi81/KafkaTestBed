@@ -182,6 +182,14 @@
             <version>0.9</version>
         </dependency>
 
+
+        <dependency>
+            <groupId>com.sap.hl.jdbc</groupId>
+            <artifactId>hl-jdbc</artifactId>
+            <version>1.2.227</version>
+        </dependency>
+
+
         <!-- Test dependencies -->
         <dependency>
             <groupId>junit</groupId>

@@ -12,14 +12,14 @@ import org.apache.kafka.clients.producer.ProducerConfig
 import scala.concurrent.duration._
 
 class SimulationWithAvroSchema extends Simulation {
-  val kafkaTopic = "kafka_streams_testing3001"
-  val kafkaBrokers = "10.97.183.115:9092"
+  val kafkaTopic = "vora_5"
+  val kafkaBrokers = "10.97.136.161:9092"
 
   val props = new util.HashMap[String, Object]()
   props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBrokers)
   props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, classOf[KafkaAvroSerializer])
   props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, classOf[KafkaAvroSerializer])
-  props.put("schema.registry.url", "http://10.97.183.115:8081")
+  props.put("schema.registry.url", "http://10.97.136.161:8081")
 
   val user_schema1 =
     s"""
@@ -43,7 +43,7 @@ class SimulationWithAvroSchema extends Simulation {
        |}
      """.stripMargin
 
-  val tableName = "\"SYSTEM\".\"com.sap.test::hello3001\""
+  val tableName = s""""myschema"."vora_5""""
 
   val keySchema = new Schema.Parser().parse(user_schema1)
   val valueSchema = new Schema.Parser().parse(user_schema2)
@@ -53,5 +53,5 @@ class SimulationWithAvroSchema extends Simulation {
   val scn = scenario("Kafka Producer Call").exec(KafkaProducerBuilder[GenericRecord, GenericRecord](tableName, Some(keySchema), Some(valueSchema)))
 
   // constantUsersPerSec(100000) during (1 minute)
-  setUp(scn.inject(constantUsersPerSec(1) during (1 minute))).protocols(kafkaProducerProtocol)
+  setUp(scn.inject(constantUsersPerSec(100000) during (1 minute))).protocols(kafkaProducerProtocol)
 }
