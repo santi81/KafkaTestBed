@@ -29,7 +29,6 @@ class KafkaProducerAction[K, V](producerProtocol: KafkaProducerProtocol[K, V],
   override def execute(session: Session): Unit = {
     val start = TimeHelper.nowMillis
     try {
-      //executeDBActor()
       producerProtocol.call(session, keySchema, valueSchema)
       val end = TimeHelper.nowMillis
 

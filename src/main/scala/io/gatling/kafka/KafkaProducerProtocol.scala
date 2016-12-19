@@ -8,6 +8,8 @@ import org.apache.avro.{Schema, SchemaBuilder}
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord}
 
+import scala.util.Random
+
 class KafkaProducerProtocol[K: Manifest, V: Manifest](props: java.util.HashMap[String, Object],
                                   topics: String,
                                   dataGenerator: RandomDataGenerator[K, V] = null)
@@ -39,7 +41,7 @@ class KafkaProducerProtocol[K: Manifest, V: Manifest](props: java.util.HashMap[S
       value = dataGenerator.generateValue()
     }
 
-    val record = new ProducerRecord[K, V](topics, key, value)
+    val record = new ProducerRecord[K, V](topics, Random.nextInt(20), key, value)
     kafkaProducer.send(record)
   }
 
