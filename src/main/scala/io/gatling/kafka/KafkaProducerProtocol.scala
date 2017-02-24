@@ -41,7 +41,7 @@ class KafkaProducerProtocol[K: Manifest, V: Manifest](props: java.util.HashMap[S
       value = dataGenerator.generateValue()
     }
 
-    val record = new ProducerRecord[K, V](topics, Random.nextInt(20), key, value)
+    val record = new ProducerRecord[K, V](topics, Random.nextInt(4), key, value)
     kafkaProducer.send(record)
   }
 

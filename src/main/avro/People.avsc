@@ -1,0 +1,15 @@
+{
+  "namespace": "model", "type": "record", "name": "People",
+  "fields": [
+  {
+    "name": "name",
+    "type": "string",
+    "doc" : "String1"
+  },
+    {
+    "name": "age",
+    "type": "int",
+    "doc" : "int"
+  }
+    ]
+}

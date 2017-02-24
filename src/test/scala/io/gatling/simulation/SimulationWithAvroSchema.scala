@@ -12,7 +12,7 @@ import org.apache.kafka.clients.producer.ProducerConfig
 import scala.concurrent.duration._
 
 class SimulationWithAvroSchema extends Simulation {
-  val kafkaTopic = "vora_5"
+  val kafkaTopic = "hana_703"
   val kafkaBrokers = "10.97.136.161:9092"
 
   val props = new util.HashMap[String, Object]()
@@ -43,7 +43,7 @@ class SimulationWithAvroSchema extends Simulation {
        |}
      """.stripMargin
 
-  val tableName = s""""myschema"."vora_5""""
+  val tableName = s""""myschema"."hana_703""""
 
   val keySchema = new Schema.Parser().parse(user_schema1)
   val valueSchema = new Schema.Parser().parse(user_schema2)
